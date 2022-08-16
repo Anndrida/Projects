@@ -1,0 +1,81 @@
+---
+title: "Interactive Iris"
+author: "Anna Gołacka"
+date: "6.04.2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# {.tabset}
+## Data
+```{r message=FALSE,warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(magrittr)
+library(ggiraph)
+library(ggpubr)
+library(DT)
+library(glue)
+
+data.frame(iris) %>% pivot_longer(!Species) %>% datatable()
+
+```
+
+## Boxplots
+```{r message=FALSE,warning=FALSE, echo=FALSE}
+
+df <- data.frame(iris) %>% as_tibble() 
+
+df %<>%pivot_longer(!Species)
+
+g <- df %>% ggplot() + geom_boxplot_interactive(aes(y = value, fill = Species,
+tooltip = glue("{name} {Species}"), data_id = Species), outlier.colour = "black") + 
+facet_wrap(~name, ncol  = 2, nrow = 2)
+
+ggiraph(ggobj = g)
+```
+## Histograms
+```{r message=FALSE,warning=FALSE, echo=FALSE}
+w<- df %>%ggplot() + 
+geom_histogram_interactive(aes(x= value, fill = Species,
+tooltip = glue("{name} {Species}"), data_id = Species),alpha = 0.50)+
+facet_wrap(~name, ncol  = 2, nrow = 2)
+
+ggiraph(ggobj = w)
+```
+## Code
+```{r message=FALSE,warning=FALSE, eval=FALSE, class.source = "bg-warning"}
+library(ggplot2)
+library(tidyverse)
+library(magrittr)
+library(ggiraph)
+library(ggpubr)
+library(DT)
+library(glue)
+
+data.frame(iris) %>% pivot_longer(!Species) %>% datatable()
+
+df <- data.frame(iris) %>% as_tibble() 
+
+df %<>%pivot_longer(!Species)
+
+df <- data.frame(iris) %>% as_tibble() 
+
+df %<>%pivot_longer(!Species)
+
+g <- df %>% ggplot() + geom_boxplot_interactive(aes(y = value, fill = Species,
+tooltip = glue("{name} {Species}"), data_id = Species), outlier.colour = "black") + 
+facet_wrap(~name, ncol  = 2, nrow = 2)
+
+ggiraph(ggobj = g)
+
+w <- df %>%ggplot() + 
+geom_histogram_interactive(aes(x= value, fill = Species,
+tooltip = glue("{name} {Species}"), data_id = Species),alpha = 0.50)+
+facet_wrap(~name, ncol  = 2, nrow = 2)
+
+ggiraph(ggobj = w)
+```

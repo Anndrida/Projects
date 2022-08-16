@@ -1,0 +1,80 @@
+---
+title: "Hamilton"
+author: "Anna Gołacka"
+date: "2022-08-11"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# {.tabset}
+## Plot "My Shot"
+
+```{r message=FALSE,warning=FALSE, echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidytext)
+library(magrittr)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(tibble)
+library(ggplot2)
+library(reshape2)
+library(wordcloud)
+
+words <- readLines("./Hamilton - My Shot.txt")
+
+tokens <- words %>%
+  as_tibble() %>%
+  unnest_tokens(word, value) %>% anti_join(stop_words)
+ 
+tokens %<>%
+  count(word, sort = TRUE) 
+
+tab <- tokens[1:14,1:2]
+
+tab %>% mutate(word1 = fct_reorder(word, n))%>%
+  ggplot() +
+  geom_col(aes(word1, n)) +
+  coord_flip() +
+  ylab("Words") +
+  xlab("Frequency") +
+  theme(plot.title = element_text(hjust=0.5))+
+  ggtitle("Frequency of words in 'My Shot' ")
+```
+
+## Wordcloud "Alexander Hamilton"
+
+```{r message=FALSE,warning=FALSE, echo=FALSE}
+words2 <- readLines("./Hamilton - Alexander Hamilton.txt")
+
+dfm.data2 <- words2 %>%
+  tokens(remove_punct = TRUE) %>%
+  dfm() %>%
+  dfm_remove(stopwords("english")) %>%
+  dfm_wordstem()
+
+a <- dfm.data2 %>%
+  textplot_wordcloud(min_count = 1)
+```
+
+## Sentiments "The Schuyler Sisters"
+``` {r message=FALSE,warning=FALSE, echo=FALSE}
+words3 <- readLines("./Hamilton - The Schuyler Sisters.txt")
+
+tokens <- words3 %>%
+  as_tibble() %>%
+  unnest_tokens(word, value)
+
+tokens %>% 
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("red", "darkgreen"),
+                   max.words = 100)
+```
